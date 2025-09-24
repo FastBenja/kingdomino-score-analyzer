@@ -3,21 +3,16 @@ import numpy as np
 import tkinter as tk
 from tkinter import filedialog
 
-images = cv2.imread("King Domino dataset/Cropped and perspective corrected boards/14.jpg")
+images = cv2.imread("King Domino dataset/Cropped and perspective corrected boards/1.jpg")
 
 # Crown template
 temp_up = cv2.imread("Croped_crown.jpg")
 
+# Template matching
+matched_up = cv2.matchTemplate(images, temp_up, cv2.TM_CCOEFF_NORMED)
+output = cv2.normalize(matched_up, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
 
-matched = cv2.matchTemplate(images, temp_up, cv2.TM_CCOEFF_NORMED)
-
-output = cv2.normalize(matched, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
-
-
-
-#blur = cv2.GaussianBlur(matched,(5,5),0)
-#ret3,th3 = cv2.threshold(blur,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-
+# Thresholding
 ret, threshold = cv2.threshold(output,220,255,cv2.THRESH_BINARY)
 
 cv2.imshow("template matched", threshold)
