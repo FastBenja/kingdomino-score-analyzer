@@ -26,7 +26,58 @@ class ImageScore:
             self.image_dict[pretty_path] = np.array(cv2.imread(path))
             #print(f"Imported {pretty_path}")
 
+        self.biomes.forrest.H_lower = 100
+        self.biomes.forrest.H_upper = 140
+        self.biomes.forrest.S_lower = 150
+        self.biomes.forrest.S_upper = 255
+        self.biomes.forrest.V_lower = 0
+        self.biomes.forrest.V_upper = 255
+
+        self.biomes.desert.H_lower = 100
+        self.biomes.desert.H_upper = 140
+        self.biomes.desert.S_lower = 150
+        self.biomes.desert.S_upper = 255
+        self.biomes.desert.V_lower = 0
+        self.biomes.desert.V_upper = 255
+
+        self.biomes.mine.H_lower = 100
+        self.biomes.mine.H_upper = 140
+        self.biomes.mine.S_lower = 150
+        self.biomes.mine.S_upper = 255
+        self.biomes.mine.V_lower = 0
+        self.biomes.mine.V_upper = 255
+
+        self.biomes.water.H_lower = 100
+        self.biomes.water.H_upper = 140
+        self.biomes.water.S_lower = 150
+        self.biomes.water.S_upper = 255
+        self.biomes.water.V_lower = 0
+        self.biomes.water.V_upper = 255
+
+        self.biomes.field.H_lower = 100
+        self.biomes.field.H_upper = 140
+        self.biomes.field.S_lower = 150
+        self.biomes.field.S_upper = 255
+        self.biomes.field.V_lower = 0
+        self.biomes.field.V_upper = 255
+
+        self.biomes.grass.H_lower = 100
+        self.biomes.grass.H_upper = 140
+        self.biomes.grass.S_lower = 150
+        self.biomes.grass.S_upper = 255
+        self.biomes.grass.V_lower = 0
+        self.biomes.grass.V_upper = 255
+
+
     def eval_raw_img(self, img): # Function to evaluate an image
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+            cv2.threshold(img, 100, 255, cv2.THRESH_BINARY)
+
+
+            
+
+
+
             score = 60
             return score
     
