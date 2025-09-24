@@ -47,7 +47,7 @@ minValR, maxValR, minLocR, maxLocR = cv2.minMaxLoc(matched_right)
 
 if maxValUp > 0.75: 
     ret, threshold_up = cv2.threshold(output_up_uint8,220,255,cv2.THRESH_BINARY)
-    #cv2.imshow("crown up", threshold_up)
+    cv2.imshow("crown up", threshold_up)
     # bounding boxes
     contours, _ = cv2.findContours(threshold_up, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     # draw boxes
@@ -59,7 +59,7 @@ else:
 
 if maxValDown > 0.75:    
     ret, threshold_down = cv2.threshold(output_down_uint8,220,255,cv2.THRESH_BINARY)
-    #cv2.imshow("crown down", threshold_down)
+    cv2.imshow("crown down", threshold_down)
     # bounding boxes
     contours, _ = cv2.findContours(threshold_down, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     # draw boxes
@@ -71,7 +71,7 @@ else:
 
 if maxValL > 0.75:
     ret, threshold_left = cv2.threshold(output_left_uint8,220,255,cv2.THRESH_BINARY)
-    #cv2.imshow("crown left", threshold_left)
+    cv2.imshow("crown left", threshold_left)
     # bounding boxes
     contours, _ = cv2.findContours(threshold_left, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     # draw boxes
@@ -83,7 +83,7 @@ else:
 
 if maxValR > 0.75:    
     ret, threshold_right = cv2.threshold(output_right_uint8,220,255,cv2.THRESH_BINARY)
-    #cv2.imshow("crown right", threshold_right)
+    cv2.imshow("crown right", threshold_right)
     # bounding boxes
     contours, _ = cv2.findContours(threshold_right, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     # draw boxes
@@ -123,24 +123,4 @@ for y in range(5):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
         """
-"""
-for y in range(5):
-    for x in range(5):
-
-        # Template matching
-        output_template = cv2.matchTemplate(roi_zone[x][y], temp, cv2.TM_SQDIFF_NORMED)
-
-        # normalize
-        #output = cv2.normalize(output_template, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
-
-        cv2.imshow("lala", output_template)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-"""
-"""
-cv2.imshow("patch 1", roi_zone[0][0])
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-"""
-
 
