@@ -3,24 +3,32 @@ import numpy as np
 import tkinter as tk
 from tkinter import filedialog
 
-images = cv2.imread("King Domino dataset/Cropped and perspective corrected boards/1.jpg")
+images = cv2.imread("King Domino dataset/Cropped and perspective corrected boards/14.jpg")
+
+# Crown template
+temp_up = cv2.imread("Croped_crown.jpg")
+
+
+matched = cv2.matchTemplate(images, temp_up, cv2.TM_CCOEFF_NORMED)
+
+output = cv2.normalize(matched, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
 
 
 
-# Get image height and width from a numpy array
-img_h, img_w, img_d = images.shape
+#blur = cv2.GaussianBlur(matched,(5,5),0)
+#ret3,th3 = cv2.threshold(blur,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
-#test to see if the image i loaded
-print("height", images.shape)
-cv2.imshow("image", images)
-cv2.waitKey(0)
+ret, threshold = cv2.threshold(output,220,255,cv2.THRESH_BINARY)
+
+cv2.imshow("template matched", threshold)
+cv2.waitKey()
 cv2.destroyAllWindows()
 
 # Patch-size
 patch_w, patch_h = 100, 100
 
-# liste til patches
-roi_zone = []
+# list for patches
+roi_zone = [[None for _ in range(5)] for _ in range(5)]
 
 # Loop to crop the image into 25 patches
 for y in range(5):
@@ -32,7 +40,7 @@ for y in range(5):
 
         cropped_img = images[y_start:y_end, x_start:x_end]
 
-        roi_zone.append(cropped_img)
+        roi_zone[y][x] = cropped_img
 
         """ 
         #vis hver patch
@@ -40,10 +48,24 @@ for y in range(5):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
         """
+"""
+for y in range(5):
+    for x in range(5):
 
-cv2.imshow("patch 1", roi_zone[1])
+        # Template matching
+        output_template = cv2.matchTemplate(roi_zone[x][y], temp, cv2.TM_SQDIFF_NORMED)
+
+        # normalize
+        #output = cv2.normalize(output_template, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+
+        cv2.imshow("lala", output_template)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+"""
+"""
+cv2.imshow("patch 1", roi_zone[0][0])
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-
+"""
 
 
