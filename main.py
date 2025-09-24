@@ -7,15 +7,36 @@ images = cv2.imread("King Domino dataset/Cropped and perspective corrected board
 
 # Crown template
 temp_up = cv2.imread("Croped_crown.jpg")
+temp_down = cv2.imread("Croped_crown_down.jpg")
+temp_left = cv2.imread("Croped_crown_left.jpg")
+temp_right = cv2.imread("Croped_crown_right.jpg")
 
 # Template matching
+#-----------------------------------------------------------------------------------------------
 matched_up = cv2.matchTemplate(images, temp_up, cv2.TM_CCOEFF_NORMED)
-output = cv2.normalize(matched_up, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+output_up = cv2.normalize(matched_up, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
 
+matched_down = cv2.matchTemplate(images, temp_down, cv2.TM_CCOEFF_NORMED)
+output_down = cv2.normalize(matched_down, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+
+matched_left = cv2.matchTemplate(images, temp_left, cv2.TM_CCOEFF_NORMED)
+output_left = cv2.normalize(matched_left, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+
+matched_right = cv2.matchTemplate(images, temp_right, cv2.TM_CCOEFF_NORMED)
+output_right = cv2.normalize(matched_right, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+#-----------------------------------------------------------------------------------------------
 # Thresholding
-ret, threshold = cv2.threshold(output,220,255,cv2.THRESH_BINARY)
+#-----------------------------------------------------------------------------------------------
+ret, threshold_up = cv2.threshold(output_up,220,255,cv2.THRESH_BINARY)
+ret, threshold_down = cv2.threshold(output_down,220,255,cv2.THRESH_BINARY)
+ret, threshold_left = cv2.threshold(output_left,220,255,cv2.THRESH_BINARY)
+ret, threshold_right = cv2.threshold(output_right,220,255,cv2.THRESH_BINARY)
+#-----------------------------------------------------------------------------------------------
 
-cv2.imshow("template matched", threshold)
+cv2.imshow("crown up", threshold_up)
+cv2.imshow("crown down", threshold_down)
+cv2.imshow("crown left", threshold_left)
+cv2.imshow("crown right", threshold_right)
 cv2.waitKey()
 cv2.destroyAllWindows()
 
