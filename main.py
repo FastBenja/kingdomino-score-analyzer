@@ -28,7 +28,7 @@ tiles = np.array([[None for _ in range(H_size)] for _ in range(W_size)])
 
 
 
-tiles_x = 3
+tiles_x = 1
 tiles_y = 3
 
 test_images = cv2.imread("King Domino dataset/Cropped and perspective corrected boards/1.jpg")
@@ -63,29 +63,39 @@ def greencheck(tile):
     mask_redhouse = cv2.inRange(hsv_img,lower_redhouse,high_redhouse)
     
     
-    #cv2.imshow(f"images[{tile}]",mask_green)
+    cv2.imshow(f"images[{tile}]",mask_green)
   
     value = (mask_green.sum()+mask_redhouse.sum())/255
+    print(value)
     if(value>green_tresholde):
         return "green"
     else:
-        "not"
+        return "not"
     
 
-def colorcheck2(tile,upper,lower,tresholde,Name,upper2 = None,lower2 = None):
+def colorcheck(tile,
+               upper,
+               lower,
+               tresholde,
+               Name,
+               ekstra = None,
+               upper2 = None,
+               lower2 = None):
     hsv_img = cv2.cvtColor(tile,cv2.COLOR_BGR2HSV)
-    mask = cv2.inRange(hsv_img,upper,lower)
-    if (upper2 != None ):
-        mask2 = cv2.inRange(hsv_img,upper,lower)
-    
-    
+    mask = cv2.inRange(hsv_img,lower,upper)
+    mask2 = 0
+    if (ekstra == True):
+        mask2 = cv2.inRange(hsv_img,lower2,upper2)
+        mask2 = mask2.sum()
+          
     #cv2.imshow(f"images[{tile}]",mask_green)
   
-    value = (mask.sum()+mask2.sum())/255
+    value = (mask.sum()+mask2)/255
+    print(f"color value: {value} og tresholde: {tresholde} og {Name}")
     if(value>tresholde):
         return Name
     else:
-        "not"
+        return "not"
     
 
     
@@ -116,7 +126,7 @@ def get_hsv_values_from_trackbars():
     return lower, upper
 
 
-def colorcheck():
+def controlcolor():
 # Brug eksempel med dit billede
     create_trackbars()
 
@@ -133,7 +143,7 @@ def colorcheck():
         cv2.imshow('Mask', mask)
         cv2.imshow('Result', result)
         
-        print(f"Lower: {lower}, Upper: {upper}")
+        print(mask.sum()/250)
         
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -147,23 +157,64 @@ cv2.imshow(f"images[{0},{0}] no color",tiles[tiles_x][tiles_y])
 
 print(greencheck(tiles[tiles_x][tiles_y]))
 
-green_tresholde = 3000
+print("her")
+tresholde_green = 3000
 upper_green = np.array([44,255,255])
 lower_green = np.array([39,0,0]) 
 
 lower_redhouse = np.array([0,0,0])
-high_redhouse = np.array([17,255,255])
-count = 0
+upper_redhouse = np.array([17,255,255])
+green = "green"
+greencount = 0
+
+treshold_forest = 2300
+upper_forest = np.array([62,255,255])
+lower_forest = np.array([44,0,0]) 
+lower_brunhouse = np.array([0,0,0])
+upper_brunehouse = np.array([17,255,255])
+forest = "forest"
+forestcount = 0
+
+colorcheck(tiles[tiles_x][tiles_y],
+                        upper_forest,
+                        lower_forest,
+                        treshold_forest,
+                        forest,
+                        True,
+                        upper_brunehouse,
+                        lower_brunhouse)
+
+#loop every tile
 for x in range(tiles.shape[0]):
     for y in range(tiles.shape[1]):
+        # check terrain  
+        if(colorcheck(tiles[x][y],
+                           upper_green,
+                           lower_green,
+                           tresholde_green,
+                           green,
+                           True,
+                           upper_redhouse,
+                           lower_redhouse) == "green"):
+            print(f"green  ({x,y})")
+            greencount = 1 + greencount
+        elif(colorcheck(tiles[x][y],
+                        upper_forest,
+                        lower_forest,
+                        treshold_forest,
+                        forest,
+                        True,
+                        upper_brunehouse,
+                        lower_brunhouse) == "forest"):
+            print(f"forest  {x,y}")
         
-        green = colorcheck(tiles[x][y])
+            forestcount = forestcount + 1
+            
+        cv2.imshow(f"firekant [{x},{y}] + {greencheck(tiles[x][y])}",tiles[x][y])
+
+#controlcolor()
         
-        if(green == "green"):
-            count = 1 + count
-        #cv2.imshow(f"firekant [{x},{y}] + {greencheck(tiles[x][y])}",tiles[x][y])
-        
-print(count)
+print(f"green count: {greencount} + forest count: {forestcount}")
 
 cv2.imshow("dkdk",test_images)
 cv2.waitKey() 
