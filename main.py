@@ -2,16 +2,22 @@ import cv2
 import numpy as np
 import tkinter as tk
 from tkinter import filedialog
+import os
 
 """Class to load images and evaluate them
 
 """
 class ImageScore:
     def __init__(self):
-        root = tk.Tk()
-        root.withdraw()
-        self.paths = filedialog.askopenfilenames()
-        
+        #root = tk.Tk()
+        #root.withdraw()
+        #self.paths = filedialog.askopenfilenames()
+
+        path = "./King Domino dataset/Cropped and perspective corrected boards"
+        self.paths = []
+        for name in os.listdir(path):
+            self.paths.append(os.path.join(path, name))
+
         self.image_dict = {} # Init dictonary to hold images and their filenames
         
         for path in self.paths: # Import selected images

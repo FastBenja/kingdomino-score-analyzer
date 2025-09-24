@@ -22,7 +22,11 @@ class PassFailTest(ImageScore): # Test class
         print(f"\n{'='*40}\nStarting pass/fail test with {len(self.image_dict)} images\n{'='*40}\n")
         for file, img in self.image_dict.items(): # Iterate over all images
             calculated_answer = self.eval_raw_img(img) # Get calculated score
-            correct_answer = self.answers[file] # Get correct score from dictonary
+            try:
+                correct_answer = self.answers[file] # Get correct score from dictonary
+            except KeyError:
+                print(f"⚠️ WARNING: No correct answer found for file {file}, skipping test")
+                continue
             if calculated_answer == correct_answer:
                 print(f"✅ PASS File: {file} calculated score {calculated_answer} expected score {correct_answer}")
                 self.correct_tests += 1
