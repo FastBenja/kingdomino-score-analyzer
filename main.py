@@ -3,7 +3,7 @@ import numpy as np
 import tkinter as tk
 from tkinter import filedialog
 
-images = cv2.imread("King Domino dataset/Cropped and perspective corrected boards/1.jpg")
+images = cv2.imread("King Domino dataset/Cropped and perspective corrected boards/2.jpg")
 
 # Crown template
 temp_up = cv2.imread("Croped_crown.jpg")
@@ -25,20 +25,42 @@ output_left = cv2.normalize(matched_left, None, alpha=0, beta=255, norm_type=cv2
 matched_right = cv2.matchTemplate(images, temp_right, cv2.TM_CCOEFF_NORMED)
 output_right = cv2.normalize(matched_right, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
 #-----------------------------------------------------------------------------------------------
-# Thresholding
+# Get variables after template matching
+mainValUp, maxValUp, minLocUp, maxLocUp = cv2.minMaxLoc(matched_up)
+mainValDown, maxValDown, minLocDown, maxLocDown = cv2.minMaxLoc(matched_down)
+mainValL, maxValL, minLocL, maxLocL = cv2.minMaxLoc(matched_left)
+minValR, maxValR, minLocR, maxLocR = cv2.minMaxLoc(matched_right)
 #-----------------------------------------------------------------------------------------------
-ret, threshold_up = cv2.threshold(output_up,220,255,cv2.THRESH_BINARY)
-ret, threshold_down = cv2.threshold(output_down,220,255,cv2.THRESH_BINARY)
-ret, threshold_left = cv2.threshold(output_left,220,255,cv2.THRESH_BINARY)
-ret, threshold_right = cv2.threshold(output_right,220,255,cv2.THRESH_BINARY)
+# Thresholding if template match is high enough
 #-----------------------------------------------------------------------------------------------
+if maxValUp > 0.70: 
+    ret, threshold_up = cv2.threshold(output_up,220,255,cv2.THRESH_BINARY)
+    cv2.imshow("crown up", threshold_up)
+else:
+    print("no crown pointing up")
 
-cv2.imshow("crown up", threshold_up)
-cv2.imshow("crown down", threshold_down)
-cv2.imshow("crown left", threshold_left)
-cv2.imshow("crown right", threshold_right)
+if maxValDown > 0.85:    
+    ret, threshold_down = cv2.threshold(output_down,220,255,cv2.THRESH_BINARY)
+    cv2.imshow("crown down", threshold_down)
+else:
+    print("no crown pointing down")
+
+if maxValL > 0.85:
+    ret, threshold_left = cv2.threshold(output_left,220,255,cv2.THRESH_BINARY)
+    cv2.imshow("crown left", threshold_left)
+else:
+    print("no crown pointing left")
+
+if maxValR > 0.70:    
+    ret, threshold_right = cv2.threshold(output_right,220,255,cv2.THRESH_BINARY)
+    cv2.imshow("crown right", threshold_right)
+else:
+    print("no crown pointing right")
+
 cv2.waitKey()
 cv2.destroyAllWindows()
+#-----------------------------------------------------------------------------------------------
+
 
 # Patch-size
 patch_w, patch_h = 100, 100
