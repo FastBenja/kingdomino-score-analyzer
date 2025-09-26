@@ -28,8 +28,8 @@ tiles = np.array([[None for _ in range(H_size)] for _ in range(W_size)])
 
 
 
-tiles_x = 1
-tiles_y = 3
+tiles_x = 2
+tiles_y = 2
 
 test_images = cv2.imread("King Domino dataset/Cropped and perspective corrected boards/1.jpg")
 
@@ -46,32 +46,6 @@ for  ih in range(H_size):
         tiles[ih][iw] = test_images[int(y):int(y+h), int(x):int(x+w)]
         
         
-        
-
-def greencheck(tile):
-    green_tresholde = 3000
-    upper_green = np.array([44,255,255])
-    lower_green = np.array([39,0,0]) 
-    
-    lower_redhouse = np.array([0,0,0])
-    high_redhouse = np.array([17,255,255])
-    
-
-    
-    hsv_img = cv2.cvtColor(tile,cv2.COLOR_BGR2HSV)
-    mask_green = cv2.inRange(hsv_img,lower_green,upper_green)
-    mask_redhouse = cv2.inRange(hsv_img,lower_redhouse,high_redhouse)
-    
-    
-    cv2.imshow(f"images[{tile}]",mask_green)
-  
-    value = (mask_green.sum()+mask_redhouse.sum())/255
-    print(value)
-    if(value>green_tresholde):
-        return "green"
-    else:
-        return "not"
-    
 
 def colorcheck(tile,
                upper,
@@ -155,7 +129,7 @@ def controlcolor():
 
 cv2.imshow(f"images[{0},{0}] no color",tiles[tiles_x][tiles_y])
 
-print(greencheck(tiles[tiles_x][tiles_y]))
+
 
 print("her")
 tresholde_green = 3000
@@ -175,14 +149,33 @@ upper_brunehouse = np.array([17,255,255])
 forest = "forest"
 forestcount = 0
 
-colorcheck(tiles[tiles_x][tiles_y],
-                        upper_forest,
-                        lower_forest,
-                        treshold_forest,
-                        forest,
-                        True,
-                        upper_brunehouse,
-                        lower_brunhouse)
+treshold_blue = 3000
+lower_blue = np.array([58,0,0])
+upper_blue = np.array([175,255,255])
+blue = "blue"
+bluecount = 0
+
+treshold_brune = 4000
+lower_brune = np.array([0,0,0])
+upper_brune= np.array([26,255,149])
+brune = "brune"
+brunecount = 0
+
+treshold_yellow = 5500
+lower_yellow = np.array([19,22,108])
+upper_yellow= np.array([29,255,213])
+yellow = "yellow"
+yellowcount = 0
+
+no_color_count = 0
+
+print( colorcheck(tiles[tiles_x][tiles_y],
+                        upper_yellow,
+                        lower_yellow,
+                        treshold_yellow,
+                        yellow,
+                        False))
+                    
 
 #loop every tile
 for x in range(tiles.shape[0]):
@@ -196,9 +189,9 @@ for x in range(tiles.shape[0]):
                            True,
                            upper_redhouse,
                            lower_redhouse) == "green"):
-            print(f"green  ({x,y})")
+            #print(f"green  ({x,y})")
             greencount = 1 + greencount
-        elif(colorcheck(tiles[x][y],
+        if(colorcheck(tiles[x][y],
                         upper_forest,
                         lower_forest,
                         treshold_forest,
@@ -206,16 +199,44 @@ for x in range(tiles.shape[0]):
                         True,
                         upper_brunehouse,
                         lower_brunhouse) == "forest"):
-            print(f"forest  {x,y}")
+            #print(f"forest  {x,y}")
         
             forestcount = forestcount + 1
+        if(colorcheck(tiles[x][y],
+                        upper_blue,
+                        lower_blue,
+                        treshold_blue,
+                        blue,
+                        False) == "blue"):
+            #print(f"blue {x,y}")
+            bluecount = bluecount + 1 
+        if(colorcheck(tiles[x][y],
+                        upper_brune,
+                        lower_brune,
+                        treshold_brune,
+                        brune,
+                        False) == "brune"):
+            #print(f"brune {x,y}")
+            brunecount = 1 + brunecount
+        if(colorcheck(tiles[x][y],
+                        upper_yellow,
+                        lower_yellow,
+                        treshold_yellow,
+                        yellow,
+                        False) == "yellow"):
+            #print(f"yellow {x,y}")
+            yellowcount = yellowcount + 1
+        else:
+            no_color_count = no_color_count + 1
+            print(f"no color {x,y}") 
             
-        cv2.imshow(f"firekant [{x},{y}] + {greencheck(tiles[x][y])}",tiles[x][y])
-
+            
+            
+            
 #controlcolor()
         
-print(f"green count: {greencount} + forest count: {forestcount}")
-
+print(f"green count: {greencount} forest count: {forestcount}  blueconut: {bluecount}  brunecount: {brunecount} yellowcount: {yellowcount} no color: {no_color_count} ")
+print(f"number of tiles: {greencount+forestcount+bluecount+brunecount+yellowcount+no_color_count}")
 cv2.imshow("dkdk",test_images)
 cv2.waitKey() 
     
