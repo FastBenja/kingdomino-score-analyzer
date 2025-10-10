@@ -12,9 +12,6 @@ templates = [
     "Templates/fucked_yellow.jpg"]
 
 
-# Crown count and placements in a 5x5 matrix
-crown_placements = np.zeros((5,5))
-
 def rot_template_match(ROI_frame, template_path):
     # Crown template
     temp = cv2.imread(template_path)
@@ -114,6 +111,9 @@ def rot_template_match(ROI_frame, template_path):
     return box_count
     #-----------------------------------------------------------------------------------------------
 
+# Crown count and placements in a 5x5 matrix
+crown_placements = np.zeros((5,5))
+
 # Patch-size
 patch_w, patch_h = 100, 100
 
@@ -139,14 +139,17 @@ for y in range(5):
 
         for i in range(len(templates)):
             print(f"template:{i}")
-            rot_template_match(cropped_img, templates[i])
+            result = rot_template_match(cropped_img, templates[i])
+            print(f"result:{result}, y: {y}, x: {x}")
+            crown_placements[y,x] = result
         
-
+        print("------------------------")
+        print(crown_placements)
         
-        '''
+        """
         #vis hver patch
-        cv2.imshow(f"Patch {y},{x}", cropped_img)
+        cv2.imshow("image", images)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-        '''
+        """
 
