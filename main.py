@@ -21,17 +21,15 @@ H_size = 5
     
 # test_images = images[0] = np.array(images[0])    
 
-
-
 tiles = np.array([[None for _ in range(H_size)] for _ in range(W_size)])
 
+tiles_x = 0
+tiles_y = 0
 
+tiles_x_2 = 0
+tiles_y_2 = 2
 
-
-tiles_x = 2
-tiles_y = 2
-
-test_images = cv2.imread("King Domino dataset/Cropped and perspective corrected boards/1.jpg")
+test_images = cv2.imread("King Domino dataset/Cropped and perspective corrected boards/2.jpg")
 
 height, width, channels  = test_images.shape
 
@@ -45,7 +43,7 @@ for  ih in range(H_size):
         w = (width / W_size )
         tiles[ih][iw] = test_images[int(y):int(y+h), int(x):int(x+w)]
         
-        
+     
 
 def colorcheck(tile,
                upper,
@@ -80,8 +78,8 @@ def nothing(x):
 
 def create_trackbars():
     cv2.namedWindow('HSV Adjust')
-    cv2.createTrackbar('H Low', 'HSV Adjust', 0, 179, nothing)
-    cv2.createTrackbar('H High', 'HSV Adjust', 179, 179, nothing)
+    cv2.createTrackbar('H Low', 'HSV Adjust', 0, 255, nothing)
+    cv2.createTrackbar('H High', 'HSV Adjust', 255, 255, nothing)
     cv2.createTrackbar('S Low', 'HSV Adjust', 0, 255, nothing)
     cv2.createTrackbar('S High', 'HSV Adjust', 255, 255, nothing)
     cv2.createTrackbar('V Low', 'HSV Adjust', 0, 255, nothing)
@@ -112,12 +110,22 @@ def controlcolor():
         mask = cv2.inRange(hsv_tile, lower, upper)
         result = cv2.bitwise_and(tiles[tiles_x][tiles_y], tiles[tiles_x][tiles_y], mask=mask)
         
+        hsv_tile2 = cv2.cvtColor(tiles[tiles_x_2][tiles_y_2], cv2.COLOR_BGR2HSV)
+        mask_2 = cv2.inRange(hsv_tile2, lower, upper)
+        result_2 = cv2.bitwise_and(tiles[tiles_x_2][tiles_y_2], tiles[tiles_x_2][tiles_y_2], mask=mask)
+        
+        
         # Vis resultater
         cv2.imshow('Original', tiles[tiles_x][tiles_y])
         cv2.imshow('Mask', mask)
         cv2.imshow('Result', result)
         
-        print(mask.sum()/250)
+        cv2.imshow('Original 2', tiles[tiles_x_2][tiles_y_2])
+        cv2.imshow('Mask 2', mask_2)
+        cv2.imshow('Result 2', result_2)
+        
+        print(mask.sum()/250, mask_2.sum()/250)
+        
         
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -130,9 +138,9 @@ def controlcolor():
 cv2.imshow(f"images[{0},{0}] no color",tiles[tiles_x][tiles_y])
 
 
-
+#da
 print("her")
-tresholde_green = 3000
+tresholde_green = 5000
 upper_green = np.array([44,255,255])
 lower_green = np.array([39,0,0]) 
 
@@ -155,7 +163,7 @@ upper_blue = np.array([175,255,255])
 blue = "blue"
 bluecount = 0
 
-treshold_brune = 4000
+treshold_brune = 7000
 lower_brune = np.array([0,0,0])
 upper_brune= np.array([26,255,149])
 brune = "brune"
@@ -190,8 +198,10 @@ for x in range(tiles.shape[0]):
                            upper_redhouse,
                            lower_redhouse) == "green"):
             #print(f"green  ({x,y})")
+            
             greencount = 1 + greencount
-        if(colorcheck(tiles[x][y],
+            cv2.imshow(f"green {greencount}", tiles[x][y])
+        elif(colorcheck(tiles[x][y],
                         upper_forest,
                         lower_forest,
                         treshold_forest,
@@ -202,15 +212,20 @@ for x in range(tiles.shape[0]):
             #print(f"forest  {x,y}")
         
             forestcount = forestcount + 1
-        if(colorcheck(tiles[x][y],
+            cv2.imshow(f"forest {forestcount}", tiles[x][y])
+            
+        elif(colorcheck(tiles[x][y],
                         upper_blue,
                         lower_blue,
                         treshold_blue,
                         blue,
                         False) == "blue"):
             #print(f"blue {x,y}")
-            bluecount = bluecount + 1 
-        if(colorcheck(tiles[x][y],
+            bluecount = bluecount + 1
+            cv2.imshow(f"blue {bluecount}", tiles[x][y])
+
+             
+        elif(colorcheck(tiles[x][y],
                         upper_brune,
                         lower_brune,
                         treshold_brune,
@@ -218,7 +233,9 @@ for x in range(tiles.shape[0]):
                         False) == "brune"):
             #print(f"brune {x,y}")
             brunecount = 1 + brunecount
-        if(colorcheck(tiles[x][y],
+            cv2.imshow(f"brune {brunecount}", tiles[x][y])
+
+        elif(colorcheck(tiles[x][y],
                         upper_yellow,
                         lower_yellow,
                         treshold_yellow,
@@ -232,8 +249,7 @@ for x in range(tiles.shape[0]):
             
             
             
-            
-#controlcolor()
+# controlcolor()
         
 print(f"green count: {greencount} forest count: {forestcount}  blueconut: {bluecount}  brunecount: {brunecount} yellowcount: {yellowcount} no color: {no_color_count} ")
 print(f"number of tiles: {greencount+forestcount+bluecount+brunecount+yellowcount+no_color_count}")
