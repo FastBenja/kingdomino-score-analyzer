@@ -3,13 +3,7 @@ import numpy as np
 import tkinter as tk
 from tkinter import filedialog
 
-images = cv2.imread("King Domino dataset/Cropped and perspective corrected boards/7.jpg")
-
-templates = [
-    "Templates/Blue_crown.jpg",
-    "Templates/swamp_crown.jpg",
-    "Templates/Yellow_crown.jpg",
-    "Templates/fucked_yellow.jpg"]
+images = cv2.imread("King Domino dataset/Cropped and perspective corrected boards/69.jpg")
 
 
 def rot_template_match(ROI_frame, template_path):
@@ -59,7 +53,7 @@ def rot_template_match(ROI_frame, template_path):
         # draw boxes
         for c in contours:
             x, y, w, h = cv2.boundingRect(c)
-            cv2.rectangle(images, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cv2.rectangle(ROI_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
             box.append(x)
     
 
@@ -71,7 +65,7 @@ def rot_template_match(ROI_frame, template_path):
         # draw boxes
         for c in contours:
             x, y, w, h = cv2.boundingRect(c)
-            cv2.rectangle(images, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cv2.rectangle(ROI_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
             box.append(x)
     
 
@@ -83,7 +77,7 @@ def rot_template_match(ROI_frame, template_path):
         # draw boxes
         for c in contours:
             x, y, w, h = cv2.boundingRect(c)
-            cv2.rectangle(images, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cv2.rectangle(ROI_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
             box.append(x)
             
    
@@ -96,17 +90,11 @@ def rot_template_match(ROI_frame, template_path):
         # draw boxes
         for c in contours:
             x, y, w, h = cv2.boundingRect(c)
-            cv2.rectangle(images, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cv2.rectangle(ROI_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
             box.append(x)
     
 
     box_count = len(box)
-
-    #print("number of bounding boxes:")
-    #print(box_count)
-    #cv2.imshow("test", ROI_frame)
-    #cv2.waitKey()
-    #cv2.destroyAllWindows()
 
     return box_count
     #-----------------------------------------------------------------------------------------------
@@ -116,6 +104,7 @@ crown_placements = np.zeros((5,5))
 
 # Patch-size
 patch_w, patch_h = 100, 100
+
 
 # Loop to crop the image into 25 patches
 for y in range(5):
@@ -127,55 +116,17 @@ for y in range(5):
 
         cropped_img = images[y_start:y_end, x_start:x_end]
 
-
         result1 = rot_template_match(cropped_img, "Templates/Light_green_crown.jpg")
         result2 = rot_template_match(cropped_img, "Templates/swamp_crown.jpg")
         result3 = rot_template_match(cropped_img, "Templates/Yellow_crown.jpg")
         result4 = rot_template_match(cropped_img, "Templates/fucked_yellow.jpg")
         result5 = rot_template_match(cropped_img, "Templates/Blue_crown.jpg")
 
-        if result1 >= result2 and result1 >= result3 and result1 >= result4 and result1 >= result5:
-            print("------------------------")
-            print(f"ROI zone:{x},{y}")
-            print(f"results: {result1}")
-            print("------------------------")
-            crown_placements[y,x] = result1
+        highest = max(result1, result2, result3, result4, result5)
 
-        if result2 >= result1 and result2 >= result3 and result2 >= result4 and result2 >= result5:
-            print("------------------------")
-            print(f"ROI zone:{x},{y}")
-            print(f"results: {result2}")
-            print("------------------------")
-            crown_placements[y,x] = result2
+        crown_placements[y,x] = highest
 
-        if result3 >= result1 and result3 >= result2 and result3 >= result4 and result3 >= result5:
-            print("------------------------")
-            print(f"ROI zone:{x},{y}")
-            print(f"results: {result3}")
-            print("------------------------")
-            crown_placements[y,x] = result3
-
-        if result4 >= result1 and result4 >= result2 and result4 >= result3 and result4 >= result5:
-            print("------------------------")
-            print(f"ROI zone:{x},{y}")
-            print(f"results: {result4}")
-            print("------------------------")
-            crown_placements[y,x] = result4
-
-        if result5 >= result1 and result5 >= result2 and result5 >= result3 and result5 >= result4:
-            print("------------------------")
-            print(f"ROI zone:{x},{y}")
-            print(f"results: {result4}")
-            print("------------------------")
-            crown_placements[y,x] = result5
-
-        if result1 == 0 and result2 == 0 and result3 == 0 and result4 == 0:
-            print("------------------------")
-            print(f"ROI zone:{x},{y}")
-            print(f"results: {result1}")
-            print("------------------------")
-            crown_placements[y,x] = 0
-        
+             
 print(crown_placements)
 cv2.imshow("original image with matches", images)
 cv2.waitKey(0)

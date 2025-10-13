@@ -103,13 +103,12 @@ def rot_template_match(ROI_frame, template_path):
 
     box_count = len(box)
 
-    print("number of bounding boxes:")
-    print(box_count)
-    cv2.imshow("test", images)
-    cv2.waitKey()
-    cv2.destroyAllWindows()
+    
 
     return box_count
     #-----------------------------------------------------------------------------------------------
 
-rot_template_match(images, templates[0])
+rot_template_match(images, "Templates/Blue_crown.jpg")
+cv2.imshow("Image with bounding boxes", images)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
