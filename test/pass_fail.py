@@ -42,8 +42,9 @@ class PassFailTest(ImageScore): # Test class
         correct_pct = np.divide(self.correct_tests, self.total_tests) * 100
         collected_pct = np.divide(self.collected_points, self.total_points) * 100
         
-        print(f"\n{"="*60}\nPassed {self.correct_tests} out of {self.total_tests} tests ({correct_pct:.2f}%)\n")
-        print(f"Collected points: {self.collected_points} out of {self.total_points} ({collected_pct:.2f}%)\n{"="*60}\n")
+        print("\n" + "="*60)
+        print(f"Passed {self.correct_tests} out of {self.total_tests} tests ({correct_pct:.2f}%)\n")
+
 
 if __name__ == "__main__":
     test = PassFailTest()
