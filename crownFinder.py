@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+images = cv2.imread("King Domino dataset/Cropped and perspective corrected boards/7.jpg")
+
 def rot_template_match(ROI_frame, template_path):
     # Crown template
     temp = cv2.imread(template_path)
@@ -95,6 +97,9 @@ def rot_template_match(ROI_frame, template_path):
     #-----------------------------------------------------------------------------------------------
 
 def crown_finder(image_path):
+
+
+
     # Crown count and placements in a 5x5 matrix
     crown_placements = np.zeros((5,5))
 
@@ -123,10 +128,11 @@ def crown_finder(image_path):
             crown_placements[y,x] = highest
 
     #error handling
-    """         
+    """       
     print(crown_placements)
     cv2.imshow("original image with matches", image_path)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     """
     return crown_placements
+
