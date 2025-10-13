@@ -9,80 +9,6 @@ import glob
 from pathlib import Path
 from crownFinder import crown_finder
 
-def count(color,crown):
-    # array holde value of crown,size,id 
-    id_array = np.array([[ [0]*3 ]*5 ]*5)
-    burn_queue = deque()
-    id = 1
-        
-    for y, row in enumerate(crown):
-        for x,colmen in enumerate(row):
-            old_id = True
-            #check for crown and no id
-            if(crown[y][x] != 0 and id_array[y][x][2] == 0):
-                # save value of crown,size and id
-                id_array[y][x][0] = crown[y][x]
-                id_array[y][x][1] += 1
-                id_array[y][x][2] = id
-               
-                burn_queue = burn_queue + add_too_burn_queue(x,y,color[y][x],color,id_array)
-                count = 0
-                while(len(burn_queue)>0):
-                    count += 1                 
-                    burn = burn_queue.pop()
-                    # save value of crown,size and id
-                    if ( crown[burn[0]][burn[1]] != 0):
-                         id_array[burn[0]][burn[1]][0] += crown[burn[0]][burn[1]] 
-                    id_array[burn[0]][burn[1]][1] += 1
-                    id_array[burn[0]][burn[1]][2] = id
-                    burn_queue = burn_queue + add_too_burn_queue(burn[1],burn[0],color[burn[0]][burn[1]],color,id_array)
-                id +=1  
-
-    return  count_the_board(id_array,id-1)
-                
-   
-def count_the_board(board,id):
-    point = np.array([[0]*2]*id)
-    
-    #sort every blob 
-    for y,row in enumerate(board):
-        for x,felt in enumerate(row):
-            if(felt[2] !=  0):
-                point[felt[2]-1][0] += felt[0]
-                point[felt[2]-1][1] += 1
-                
-    #count point 
-    result = 0
-    for x in range(point.shape[0]):
-        result += point[x][0]*point[x][1]
-    return result    
-    
-    
-# how greas fire methond core                 
-def add_too_burn_queue(x,y,color,array,id_array):
-    new_queue = deque()
-    up = y-1
-    down = y+1
-    left = x-1
-    right = x+1
-    # check sourounding blocks 
-    if(up >= 0):        
-        if(array[up][x] == color and id_array[up][x][2] == 0):
-            new_queue.append(np.array([up,x]))
-    if(left >= 0):
-        if(array[y][left] == color and id_array[y][left][2] == 0):
-            new_queue.append(np.array([y,left]))
-    if(down < array.shape[1]):
-        if(array[down][x] == color and id_array[down][x][2] == 0 ):
-            new_queue.append(np.array([down,x]))
-    if(right < array.shape[0]):
-        if(array[y][right] == color and id_array[y][right][2] == 0):
-            new_queue.append(np.array([y,right]))
-    return new_queue
-
-
-# print(count(color21,crown21))
-
 biomes: dict[str, dict[str, int]] = {
     "forrest": {"H_lower": 31, "H_upper": 61,  "S_lower": 80,  "S_upper": 232, "V_lower": 35,  "V_upper": 81},
     "desert":  {"H_lower": 19, "H_upper": 27,  "S_lower": 108, "S_upper": 156, "V_lower": 38,  "V_upper": 176},
@@ -164,33 +90,96 @@ class ImageScore:
                         if detected[i, j]:
                             print(f"Warning! {biome} is detected at {i},{j} but {detected[i, j]} is allerady assigned! Overwriting now!")
                         detected[i, j] = biome
-        return detected
+        # return detected
                             
         #Show results
-        # titles = ["original", "Mask", "Mask median"]
-        # images = [img, mask, mask_median]
-        # for i in range(5):
-        #     plt.subplot(2,2,i+1)
-        #     plt.imshow(images[i],"gray")
-        #     plt.title(titles[i])
-        #     plt.xticks([])
-        #     plt.yticks([])
-        # plt.show()
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
+        titles = ["original", "Mask", "Mask median"]
+        images = [img, mask, mask_median]
+        for i in range(5):
+            plt.subplot(2,2,i+1)
+            plt.imshow(images[i],"gray")
+            plt.title(titles[i])
+            plt.xticks([])
+            plt.yticks([])
+        plt.show()
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
              
         print(detected)
         plt.subplot()
         plt.imshow(cv2.cvtColor(img,cv2.COLOR_BGR2RGB))
         plt.show()
-
-
   
+    def __add_too_burn_queue(self, x, y, color, array, id_array):
+        new_queue = deque()
+        up = y-1
+        down = y+1
+        left = x-1
+        right = x+1
+        # check sourounding blocks 
+        if(up >= 0):        
+            if(array[up][x] == color and id_array[up][x][2] == 0):
+                new_queue.append(np.array([up,x]))
+        if(left >= 0):
+            if(array[y][left] == color and id_array[y][left][2] == 0):
+                new_queue.append(np.array([y,left]))
+        if(down < array.shape[1]):
+            if(array[down][x] == color and id_array[down][x][2] == 0 ):
+                new_queue.append(np.array([down,x]))
+        if(right < array.shape[0]):
+            if(array[y][right] == color and id_array[y][right][2] == 0):
+                new_queue.append(np.array([y,right]))
+        return new_queue
+   
+    def __count_the_board(self, board, id):
+        point = np.array([[0]*2]*id)
+        
+        #sort every blob 
+        for y,row in enumerate(board):
+            for x,felt in enumerate(row):
+                if(felt[2] !=  0):
+                    point[felt[2]-1][0] += felt[0]
+                    point[felt[2]-1][1] += 1
+                    
+        #count point 
+        result = 0
+        for x in range(point.shape[0]):
+            result += point[x][0]*point[x][1]
+        return result  
+    
+    def __count(self, color, crown):
+        # array holde value of crown,size,id 
+        id_array = np.array([[ [0]*3 ]*5 ]*5)
+        burn_queue = deque()
+        id = 1   
+        for y, row in enumerate(crown):
+            for x,colmen in enumerate(row):
+                old_id = True
+                #check for crown and no id
+                if(crown[y][x] != 0 and id_array[y][x][2] == 0):
+                    # save value of crown,size and id
+                    id_array[y][x][0] = crown[y][x]
+                    id_array[y][x][1] += 1
+                    id_array[y][x][2] = id
+                    burn_queue = burn_queue + self.__add_too_burn_queue(x,y,color[y][x],color,id_array)
+                    count = 0
+                    while(len(burn_queue)>0):
+                        count += 1                 
+                        burn = burn_queue.pop()
+                        # save value of crown,size and id
+                        if ( crown[burn[0]][burn[1]] != 0):
+                            id_array[burn[0]][burn[1]][0] += crown[burn[0]][burn[1]] 
+                        id_array[burn[0]][burn[1]][1] += 1
+                        id_array[burn[0]][burn[1]][2] = id
+                        burn_queue = burn_queue + self.__add_too_burn_queue(burn[1],burn[0],color[burn[0]][burn[1]],color,id_array)
+                    id +=1  
+        return  self.__count_the_board(id_array,id-1)
+
     def eval_img(self, img): # Function to evaluate a single image
         imgHSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         biomes = self.__detectBiome(imgHSV)
         crowns = crown_finder(img)
-        res = count(biomes, crowns)
+        res = self.__count(biomes, crowns)
         return res
     
     def run(self): # Run evaluation on all images
