@@ -90,25 +90,25 @@ class ImageScore:
                         if detected[i, j]:
                             print(f"Warning! {biome} is detected at {i},{j} but {detected[i, j]} is allerady assigned! Overwriting now!")
                         detected[i, j] = biome
-        # return detected
+        return detected
                             
         #Show results
-        titles = ["original", "Mask", "Mask median"]
-        images = [img, mask, mask_median]
-        for i in range(5):
-            plt.subplot(2,2,i+1)
-            plt.imshow(images[i],"gray")
-            plt.title(titles[i])
-            plt.xticks([])
-            plt.yticks([])
-        plt.show()
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        # titles = ["original", "Mask", "Mask median"]
+        # images = [img, mask, mask_median]
+        # for i in range(5):
+        #     plt.subplot(2,2,i+1)
+        #     plt.imshow(images[i],"gray")
+        #     plt.title(titles[i])
+        #     plt.xticks([])
+        #     plt.yticks([])
+        # plt.show()
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
              
-        print(detected)
-        plt.subplot()
-        plt.imshow(cv2.cvtColor(img,cv2.COLOR_BGR2RGB))
-        plt.show()
+        # print(detected)
+        # plt.subplot()
+        # plt.imshow(cv2.cvtColor(img,cv2.COLOR_BGR2RGB))
+        # plt.show()
   
     def __add_too_burn_queue(self, x, y, color, array, id_array):
         new_queue = deque()
@@ -156,18 +156,18 @@ class ImageScore:
             for x,colmen in enumerate(row):
                 old_id = True
                 #check for crown and no id
-                if(crown[y][x] != 0 and id_array[y][x][2] == 0):
+                if(crown[y,x] != 0 and id_array[y,x][2] == 0):
                     # save value of crown,size and id
-                    id_array[y][x][0] = crown[y][x]
-                    id_array[y][x][1] += 1
-                    id_array[y][x][2] = id
-                    burn_queue = burn_queue + self.__add_too_burn_queue(x,y,color[y][x],color,id_array)
+                    id_array[y,x][0] = crown[y][x]
+                    id_array[y,x][1] += 1
+                    id_array[y,x][2] = id
+                    burn_queue = burn_queue + self.__add_too_burn_queue(x,y,color[y,x],color,id_array)
                     count = 0
                     while(len(burn_queue)>0):
                         count += 1                 
                         burn = burn_queue.pop()
                         # save value of crown,size and id
-                        if ( crown[burn[0]][burn[1]] != 0):
+                        if (crown[burn[0]][burn[1]] != 0):
                             id_array[burn[0]][burn[1]][0] += crown[burn[0]][burn[1]] 
                         id_array[burn[0]][burn[1]][1] += 1
                         id_array[burn[0]][burn[1]][2] = id
@@ -185,7 +185,7 @@ class ImageScore:
     def run(self): # Run evaluation on all images
         res = {}
         for file, img in self.image_dict.items():
-            res[file] = self.eval_raw_img(img)
+            res[file] = self.eval_img(img)
         return res
 
 if __name__ == "__main__":
