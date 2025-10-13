@@ -5,6 +5,9 @@ from tkinter import filedialog
 from collections import deque
 import os
 from matplotlib import pyplot as plt
+import glob
+from pathlib import Path
+from crownFinder import crown_finder
 
 # color = np.array([["green","blue","skov","skov","skov"],
 #                   ["green","skov","skov","skov","green"],
@@ -157,7 +160,7 @@ class ImageScore:
         dataset_folder_path = "./King Domino dataset/Cropped and perspective corrected boards/"
         desert_tile_1_file_path = "./desert_sample_1.jpg"
         desert_tile_2_file_path = "./desert_sample_2.jpg"
-        
+
         # Load all images in the dataset folder and store in dictionary
         for name in os.listdir(dataset_folder_path):
             self.paths.append(os.path.join(dataset_folder_path, name))        
@@ -165,7 +168,7 @@ class ImageScore:
             path_segments = dataset_folder_path.split('/')
             file_name = path_segments[len(path_segments)-1]
             self.image_dict[file_name] = np.array(cv2.imread(dataset_folder_path))
-            
+        
         # Load tile and calculate histogram
         desert_tile_1_img = cv2.imread(desert_tile_1_file_path)
         desert_tile_2_img = cv2.imread(desert_tile_2_file_path)
@@ -184,9 +187,8 @@ class ImageScore:
         hist_list.append(cv2.calcHist([img], [2], None, [256], [0, 256]))
         cv2.normalize(hist_list[2], hist_list[2], alpha=0, beta=1, norm_type=cv2.NORM_MINMAX)
         return hist_list
-
-    def eval_raw_img(self, img): # Function to evaluate an image
-        imgHSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    
+    def __detectBiome(self, img):
         detected = np.zeros((5, 5),dtype=object)
 
         # Loop thrugh all cells on the board and test for biome type
@@ -194,7 +196,7 @@ class ImageScore:
             for j in range(5):
                 y1, y2 = i*100, (i+1)*100
                 x1, x2 = j*100, (j+1)*100
-                cell = imgHSV[y1:y2, x1:x2]
+                cell = img[y1:y2, x1:x2]
                 
                 # Calculate histograms for cell
                 hist_cell = self.__create_histogram(cell)
@@ -202,10 +204,10 @@ class ImageScore:
                 hist_s_cor = cv2.compareHist(hist_cell[1], self.desert_hist_1[1], cv2.HISTCMP_BHATTACHARYYA)
                 hist_v_cor = cv2.compareHist(hist_cell[2], self.desert_hist_1[2], cv2.HISTCMP_BHATTACHARYYA)
                 
-                if hist_h_cor > 0.8 and hist_s_cor > 0.8 and hist_v_cor > 0.8:
-                    if detected[i, j]:
-                            print(f"Warning! desert is detected at {i},{j} thrugh hist matching, but {detected[i, j]} is allerady assigned! Overwriting now!")
-                    detected[i, j] = "desert"
+                # if hist_h_cor > 0.8 and hist_s_cor > 0.8 and hist_v_cor > 0.8:
+                #     if detected[i, j]:
+                #             print(f"Warning! desert is detected at {i},{j} thrugh hist matching, but {detected[i, j]} is allerady assigned! Overwriting now!")
+                #     detected[i, j] = "desert"
 
                 
                 # Loop thrugh all biomes and their search parameters
@@ -218,6 +220,7 @@ class ImageScore:
                         if detected[i, j]:
                             print(f"Warning! {biome} is detected at {i},{j} but {detected[i, j]} is allerady assigned! Overwriting now!")
                         detected[i, j] = biome
+        return detected
                             
         #Show results
         # titles = ["original", "Mask", "Mask median"]
@@ -236,6 +239,13 @@ class ImageScore:
         plt.subplot()
         plt.imshow(cv2.cvtColor(img,cv2.COLOR_BGR2RGB))
         plt.show()
+
+
+  
+    def eval_img(self, img): # Function to evaluate a single image
+        imgHSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        biomes = self.__detectBiome(imgHSV)
+        crowns = crown_finder(img)
         
                 
         score = 60
@@ -243,7 +253,6 @@ class ImageScore:
     
     def run(self): # Run evaluation on all images
         res = {}
-
         for file, img in self.image_dict.items():
             res[file] = self.eval_raw_img(img)
         return res

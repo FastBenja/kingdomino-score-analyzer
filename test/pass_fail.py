@@ -25,7 +25,7 @@ class PassFailTest(ImageScore): # Test class
     def pass_fail_test(self): # Run pass/fail test
         print(f"\n{'='*40}\nStarting pass/fail test with {len(self.image_dict)} images\n{'='*40}\n")
         for file, img in self.image_dict.items(): # Iterate over all images
-            calculated_answer = self.eval_raw_img(img) # Get calculated score
+            calculated_answer = self.eval_img(img) # Get calculated score
             self.collected_points += calculated_answer
             try:
                 correct_answer = self.answers[file] # Get correct score from dictonary
