@@ -149,56 +149,46 @@ class ImageScore:
     """
     Class to load images and evaluate them
     """
+    
     def __init__(self):
         global biomes
         self.paths = [] # List to hold filepaths for all images
         self.image_dict = {} # Init dictionary to hold images and their filenames
-
         dataset_folder_path = "./King Domino dataset/Cropped and perspective corrected boards/"
-        forrest_tile_file_path = "./King Domino dataset/forrest_sample.jpg"
-
+        desert_tile_1_file_path = "./desert_sample_1.jpg"
+        desert_tile_2_file_path = "./desert_sample_2.jpg"
+        
         # Load all images in the dataset folder and store in dictionary
         for name in os.listdir(dataset_folder_path):
-            self.paths.append(os.path.join(dataset_folder_path, name))
+            self.paths.append(os.path.join(dataset_folder_path, name))        
         for dataset_folder_path in self.paths:
             path_segments = dataset_folder_path.split('/')
             file_name = path_segments[len(path_segments)-1]
             self.image_dict[file_name] = np.array(cv2.imread(dataset_folder_path))
             
         # Load tile and calculate histogram
-        forrest_tile_img = np.array(cv2.imread(forrest_tile_file_path))
-        cv2.cvtColor(forrest_tile_img, cv2.COLOR_BGR2HSV, forrest_tile_img)
-        self.forrest_hist_h = cv2.calcHist([forrest_tile_img], [0], None, [256], [0, 256])
-        cv2.normalize(self.forrest_hist_h,self.forrest_hist_h, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX)
-        self.forrest_hist_s = cv2.calcHist([forrest_tile_img], [1], None, [256], [0, 256])
-        cv2.normalize(self.forrest_hist_s,self.forrest_hist_s, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX)
-        self.forrest_hist_v = cv2.calcHist([forrest_tile_img], [2], None, [256], [0, 256])
-        cv2.normalize(self.forrest_hist_v,self.forrest_hist_v, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX)
-
- 
+        desert_tile_1_img = cv2.imread(desert_tile_1_file_path)
+        desert_tile_2_img = cv2.imread(desert_tile_2_file_path)
+        desert_tile_1_img = cv2.cvtColor(desert_tile_1_img, cv2.COLOR_BGR2HSV)
+        desert_tile_2_img = cv2.cvtColor(desert_tile_1_img, cv2.COLOR_BGR2HSV)
+        self.desert_hist_1 = self.__create_histogram(desert_tile_1_img)
+        self.desert_hist_2 = self.__create_histogram(desert_tile_2_img)
         
-            
-    def create_HS_histogram(self, img):
-        # hist = cv2.calcHist(img, [0, 1, 2], None, [50, 50, 50], [0, 256, 0, 256, 0, 256], )
-        # plt.hist(hist.ravel(),256,[0,256]); plt.show()        
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
-        
-        histrH = cv2.calcHist([img], [0], None, [256],[0, 256])
-        histrS = cv2.calcHist([img], [1], None, [256],[0, 256])
-        histr = cv2.calcHist([img], [0, 1], None, [256, 256], [0, 256, 0, 256])
-        plt.plot(histr)
-        #plt.plot(histrH, color='r')
-        #plt.plot(histrS, color='g')
-        plt.xlim([0,256])
-        plt.show()
-        cv2.waitKey(0)
-        
+    def __create_histogram(self, img):
+        hist_list = []
+        img = np.array(img)
+        hist_list.append(cv2.calcHist([img], [0], None, [256], [0, 256]))
+        cv2.normalize(hist_list[0], hist_list[0], alpha=0, beta=1, norm_type=cv2.NORM_MINMAX)
+        hist_list.append(cv2.calcHist([img], [1], None, [256], [0, 256]))
+        cv2.normalize(hist_list[1], hist_list[1], alpha=0, beta=1, norm_type=cv2.NORM_MINMAX)
+        hist_list.append(cv2.calcHist([img], [2], None, [256], [0, 256]))
+        cv2.normalize(hist_list[2], hist_list[2], alpha=0, beta=1, norm_type=cv2.NORM_MINMAX)
+        return hist_list
 
     def eval_raw_img(self, img): # Function to evaluate an image
         imgHSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        detected = np.zeros((len(biomes), 5, 5))
-        
+        detected = np.zeros((5, 5),dtype=object)
+
         # Loop thrugh all cells on the board and test for biome type
         for i in range(5):
             for j in range(5):
@@ -207,20 +197,16 @@ class ImageScore:
                 cell = imgHSV[y1:y2, x1:x2]
                 
                 # Calculate histograms for cell
-                hist_h = cv2.calcHist([cell], [0], None, [256], [0, 256])
-                cv2.normalize(hist_h, hist_h, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX)
-                hist_s = cv2.calcHist([cell], [1], None, [256], [0, 256])
-                cv2.normalize(hist_s, hist_s, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX)
-                hist_v = cv2.calcHist([cell], [2], None, [256], [0, 256])
-                cv2.normalize(hist_v, hist_v, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX)
+                hist_cell = self.__create_histogram(cell)
+                hist_h_cor = cv2.compareHist(hist_cell[0], self.desert_hist_1[0], cv2.HISTCMP_BHATTACHARYYA)
+                hist_s_cor = cv2.compareHist(hist_cell[1], self.desert_hist_1[1], cv2.HISTCMP_BHATTACHARYYA)
+                hist_v_cor = cv2.compareHist(hist_cell[2], self.desert_hist_1[2], cv2.HISTCMP_BHATTACHARYYA)
                 
-                hist_h_cor = cv2.compareHist(self.forrest_hist_h, hist_h, cv2.HISTCMP_BHATTACHARYYA)
-                hist_s_cor = cv2.compareHist(self.forrest_hist_s, hist_s, cv2.HISTCMP_BHATTACHARYYA)
-                hist_v_cor = cv2.compareHist(self.forrest_hist_v, hist_v, cv2.HISTCMP_BHATTACHARYYA)
-                    
-                #print(f'Histogram comp: H:{hist_h_cor}\tS:{hist_s_cor}\tV:{hist_v_cor}')
-                #plt.plot(hist_h,hist_s,hist_v)
-                #plt.show()
+                if hist_h_cor > 0.8 and hist_s_cor > 0.8 and hist_v_cor > 0.8:
+                    if detected[i, j]:
+                            print(f"Warning! desert is detected at {i},{j} thrugh hist matching, but {detected[i, j]} is allerady assigned! Overwriting now!")
+                    detected[i, j] = "desert"
+
                 
                 # Loop thrugh all biomes and their search parameters
                 for biome, values in biomes.items():                 
@@ -229,9 +215,9 @@ class ImageScore:
                     mask = cv2.inRange(cell, lowerb, upperb)
                     mask_median = cv2.medianBlur(mask, 5)
                     if cv2.countNonZero(mask_median) > 100*100*0.1:
-                        detected[list(biomes.keys()).index(biome), i, j] = 1
-                    # print(biome)
-                    # print(detected[list(biomes.keys()).index(biome), :, :])
+                        if detected[i, j]:
+                            print(f"Warning! {biome} is detected at {i},{j} but {detected[i, j]} is allerady assigned! Overwriting now!")
+                        detected[i, j] = biome
                             
         #Show results
         # titles = ["original", "Mask", "Mask median"]
@@ -247,9 +233,9 @@ class ImageScore:
         # cv2.destroyAllWindows()
              
         print(detected)
-        plt.subplot(1,2)
-        plt.imshow(img)
-        plt.imshow
+        plt.subplot()
+        plt.imshow(cv2.cvtColor(img,cv2.COLOR_BGR2RGB))
+        plt.show()
         
                 
         score = 60
@@ -257,6 +243,7 @@ class ImageScore:
     
     def run(self): # Run evaluation on all images
         res = {}
+
         for file, img in self.image_dict.items():
             res[file] = self.eval_raw_img(img)
         return res

@@ -16,7 +16,7 @@ class PassFailTest(ImageScore): # Test class
         self.collected_points = 0
         self.answers = {}
 
-        with open("test/results.csv", newline="\n") as csvfile: # Load answers from csv-file
+        with open("test/results_full.csv", newline="\n") as csvfile: # Load answers from csv-file
             reader = csv.reader(csvfile)
             for answer in reader:
                 self.answers[answer[0]] = int(answer[1]) # Store answers in dictonary with filename as key and score as value
