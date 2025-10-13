@@ -12,16 +12,21 @@ class PassFailTest(ImageScore): # Test class
         super().__init__()
         self.total_tests = 0
         self.correct_tests = 0
+        self.total_points = 0
+        self.collected_points = 0
         self.answers = {}
+
         with open("test/results.csv", newline="\n") as csvfile: # Load answers from csv-file
             reader = csv.reader(csvfile)
             for answer in reader:
                 self.answers[answer[0]] = int(answer[1]) # Store answers in dictonary with filename as key and score as value
+                self.total_points += int(answer[1])
 
     def pass_fail_test(self): # Run pass/fail test
         print(f"\n{'='*40}\nStarting pass/fail test with {len(self.image_dict)} images\n{'='*40}\n")
         for file, img in self.image_dict.items(): # Iterate over all images
             calculated_answer = self.eval_raw_img(img) # Get calculated score
+            self.collected_points += calculated_answer
             try:
                 correct_answer = self.answers[file] # Get correct score from dictonary
             except KeyError:
@@ -35,9 +40,10 @@ class PassFailTest(ImageScore): # Test class
             self.total_tests += 1
         
         correct_pct = np.divide(self.correct_tests, self.total_tests) * 100
-        print(f"\n{"="*40}\nPassed {self.correct_tests} out of {self.total_tests} tests ({correct_pct:.2f}%)\n{"="*40}\n")
+        collected_pct = np.divide(self.collected_points, self.total_points) * 100
         
-            
+        print(f"\n{"="*60}\nPassed {self.correct_tests} out of {self.total_tests} tests ({correct_pct:.2f}%)\n")
+        print(f"Collected points: {self.collected_points} out of {self.total_points} ({collected_pct:.2f}%)\n{"="*60}\n")
 
 if __name__ == "__main__":
     test = PassFailTest()
