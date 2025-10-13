@@ -9,62 +9,6 @@ import glob
 from pathlib import Path
 from crownFinder import crown_finder
 
-# color = np.array([["green","blue","skov","skov","skov"],
-#                   ["green","skov","skov","skov","green"],
-#                   ["green","brun","start","skov","green"],   
-#                   ["green","brun","blue","green","green"],
-#                   ["skov","blue","blue","green","yellow"]
-#                   ])
-
-# crown = np.array([[0,0,0,0,0],
-#                   [0,0,0,1,0],
-#                   [0,1,0,0,0],
-#                   [0,2,0,2,1],
-#                   [0,1,0,1,0]])
-
-
-
-# color2 = np.array([["yellow","brune","yellow","black","brune"],
-#                   ["black","brune","yellow","yellow","skov"],
-#                   ["black","brune","start","yellow","yellow"],   
-#                   ["black","black","green","green","yellow"],
-#                   ["yellow","yellow","brune","brune","green"]
-#                   ])
-
-# crown2 = np.array([[0,0,0,2,0],
-#                   [1,1,0,0,0],
-#                   [2,0,0,0,0],
-#                   [2,3,0,0,1],
-#                   [0,0,0,0,0]])
-
-
-# color33 = np.array([["green","yellow","blue","blue","blue"],
-#                   ["yellow","yellow","brune","yellow","skov"],
-#                   ["blue","yellow","start","skov","skov"],   
-#                   ["blue","skov","skov","skov","table"],
-#                   ["blue","skov","yellow","yellow","table"]
-#                   ])
-
-# crown33 = np.array([[2,0,1,0,1],
-#                   [0,1,0,0,0],
-#                   [1,0,0,0,0],
-#                   [1,0,0,0,0],
-#                   [1,0,0,0,0]])
-
-
-# color21 = np.array([["brune","green","brune","yellow","skov"],
-#                   ["brune","green","brune","yellow","skov"],
-#                   ["brune","green","start","yellow","skov"],   
-#                   ["brune","green","blue","blue","skov"],
-#                   ["yellow","green","blue","blue","blue"]
-#                   ])
-
-# crown21 = np.array([[0,0,2,0,0],
-#                   [0,0,0,0,0],
-#                   [2,0,0,0,0],
-#                   [1,1,0,1,0],
-#                   [0,2,0,0,0]])
-
 def count(color,crown):
     # array holde value of crown,size,id 
     id_array = np.array([[ [0]*3 ]*5 ]*5)
@@ -246,10 +190,8 @@ class ImageScore:
         imgHSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         biomes = self.__detectBiome(imgHSV)
         crowns = crown_finder(img)
-        
-                
-        score = 60
-        return score
+        res = count(biomes, crowns)
+        return res
     
     def run(self): # Run evaluation on all images
         res = {}
