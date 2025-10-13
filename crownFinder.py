@@ -1,5 +1,8 @@
 import cv2
 import numpy as np
+import glob
+from pathlib import Path
+
 
 images = cv2.imread("King Domino dataset/Cropped and perspective corrected boards/7.jpg")
 
@@ -40,9 +43,10 @@ def rot_template_match(ROI_frame, template_path):
     #-----------------------------------------------------------------------------------------------
     # Thresholding if template match is high enough
     #-----------------------------------------------------------------------------------------------
-    
 
-    if maxValUp > 0.75: 
+    copy_image = ROI_frame.copy()
+
+    if maxValUp > 0.6: 
         ret, threshold_up = cv2.threshold(output_uint8,220,255,cv2.THRESH_BINARY)
         #cv2.imshow("crown up", threshold_up)
         # bounding boxes
@@ -50,11 +54,11 @@ def rot_template_match(ROI_frame, template_path):
         # draw boxes
         for c in contours:
             x, y, w, h = cv2.boundingRect(c)
-            cv2.rectangle(ROI_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cv2.rectangle(copy_image, (x, y), (x+w, y+h), (0, 255, 0), 2)
             box.append(x)
     
 
-    if maxValDown > 0.75:    
+    if maxValDown > 0.6:    
         ret, threshold_down = cv2.threshold(output1_uint8,220,255,cv2.THRESH_BINARY)
         #cv2.imshow("crown down", threshold_down)
         # bounding boxes
@@ -62,11 +66,11 @@ def rot_template_match(ROI_frame, template_path):
         # draw boxes
         for c in contours:
             x, y, w, h = cv2.boundingRect(c)
-            cv2.rectangle(ROI_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cv2.rectangle(copy_image, (x, y), (x+w, y+h), (0, 255, 0), 2)
             box.append(x)
     
 
-    if maxValL > 0.75:
+    if maxValL > 0.6:
         ret, threshold_left = cv2.threshold(output2_uint8,220,255,cv2.THRESH_BINARY)
         #cv2.imshow("crown left", threshold_left)
         # bounding boxes
@@ -74,12 +78,12 @@ def rot_template_match(ROI_frame, template_path):
         # draw boxes
         for c in contours:
             x, y, w, h = cv2.boundingRect(c)
-            cv2.rectangle(ROI_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cv2.rectangle(copy_image, (x, y), (x+w, y+h), (0, 255, 0), 2)
             box.append(x)
             
    
 
-    if maxValR > 0.75:    
+    if maxValR > 0.6:    
         ret, threshold_right = cv2.threshold(output3_uint8,220,255,cv2.THRESH_BINARY)
         #cv2.imshow("crown right", threshold_right)
         # bounding boxes
@@ -87,18 +91,16 @@ def rot_template_match(ROI_frame, template_path):
         # draw boxes
         for c in contours:
             x, y, w, h = cv2.boundingRect(c)
-            cv2.rectangle(ROI_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cv2.rectangle(copy_image, (x, y), (x+w, y+h), (0, 255, 0), 2)
             box.append(x)
     
 
     box_count = len(box)
-
+    
     return box_count
     #-----------------------------------------------------------------------------------------------
 
 def crown_finder(image_path):
-
-
 
     # Crown count and placements in a 5x5 matrix
     crown_placements = np.zeros((5,5))
@@ -128,11 +130,12 @@ def crown_finder(image_path):
             crown_placements[y,x] = highest
 
     #error handling
-    """       
-    print(crown_placements)
-    cv2.imshow("original image with matches", image_path)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    """
+           
+    #print(crown_placements)
+    #cv2.imshow("original image with matches", image_path)
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
+    
     return crown_placements
 
+    
